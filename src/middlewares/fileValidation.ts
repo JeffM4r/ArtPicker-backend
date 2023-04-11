@@ -1,12 +1,10 @@
-import path from "path"
-
-export function fileCheck(file) {
+export function fileCheck(file): boolean {
 const mimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif']
-const fileTypes = ['png', 'jpeg', 'jpg', 'gif']
+const Extensions = ['/', 'i', 'R']
+const fileMimeType = file.replace("data:", "").split(';base64,')[0];
+const fileExtension = file.replace("data:", "").split(';base64,').pop().charAt(0);
 
-const fileExtension = path.extname(file.originalname);
-
-if (!fileTypes.includes(fileExtension) || !mimeTypes.includes(file.memetype)) {
+if (!Extensions.includes(fileExtension) || !mimeTypes.includes(fileMimeType)) {
   return false;
 }
 
