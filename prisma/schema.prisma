@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  imageId   Int?
+  text      String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  images    images?  @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model fallower {
+  id                               Int    @id @default(autoincrement())
+  fallowerId                       Int?
+  fallowedId                       Int?
+  users_fallower_fallowedIdTousers users? @relation("fallower_fallowedIdTousers", fields: [fallowedId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_fallower_fallowerIdTousers users? @relation("fallower_fallowerIdTousers", fields: [fallowerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model images {
+  id            Int        @id @default(autoincrement())
+  userId        Int?
+  title         String
+  subtitle      String?
+  pictureLink   String
+  pictureSerial String
+  createdAt     DateTime   @default(now()) @db.Timestamp(6)
+  comments      comments[]
+  users         users?     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  likes         likes[]
+
+  @@index([title], map: "idx_images_title")
+}
+
+model likes {
+  id      Int     @id @default(autoincrement())
+  userId  Int?
+  imageId Int?
+  images  images? @relation(fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users   users?  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model profilePictures {
+  id            Int      @id @default(autoincrement())
+  userId        Int?
+  pictureLink   String
+  pictureSerial String
+  createdAt     DateTime @default(now()) @db.Timestamp(6)
+  users         users?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                                  Int               @id @default(autoincrement())
+  userName                            String
+  password                            String
+  email                               String
+  createdAt                           DateTime          @default(now()) @db.Timestamp(6)
+  comments                            comments[]
+  fallower_fallower_fallowedIdTousers fallower[]        @relation("fallower_fallowedIdTousers")
+  fallower_fallower_fallowerIdTousers fallower[]        @relation("fallower_fallowerIdTousers")
+  images                              images[]
+  likes                               likes[]
+  profilePictures                     profilePictures[]
+  sessions                            sessions[]
+
+  @@index([userName], map: "idx_users_name")
+}
+
+model sessions {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  token     String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  users     users?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model userCache {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  userName  String   @unique @db.VarChar(50)
+  password  String   @db.VarChar(60)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+}
