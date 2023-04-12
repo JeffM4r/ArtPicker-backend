@@ -36,11 +36,39 @@ async function insertProfilePicture(userId: number, pictureLink: string, picture
   })
 }
 
+async function insertSession(userId: number, refreshToken: string){
+  return prisma.sessions.create({
+    data:{
+      userId: userId,
+      token: refreshToken
+    }
+  })
+}
+
+async function findSession(userId: number){
+  return prisma.sessions.findFirst({
+    where:{
+      userId: userId
+    }
+  })
+}
+
+async function deleteSession(id: number){
+  return prisma.sessions.delete({
+    where: {
+      id: id
+    },
+  })
+}
+
 const authRepository = {
   findUserByName,
   findUserByEmail,
   insertProfilePicture,
-  insertUser
+  insertUser,
+  insertSession,
+  findSession,
+  deleteSession
 };
 
 export default authRepository
