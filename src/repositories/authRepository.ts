@@ -53,6 +53,14 @@ async function findSession(userId: number){
   })
 }
 
+async function findSessionbyToken(token: string){
+  return prisma.sessions.findFirst({
+    where:{
+      token: token
+    }
+  })
+}
+
 async function deleteSession(id: number){
   return prisma.sessions.delete({
     where: {
@@ -68,6 +76,7 @@ const authRepository = {
   insertUser,
   insertSession,
   findSession,
+  findSessionbyToken,
   deleteSession
 };
 

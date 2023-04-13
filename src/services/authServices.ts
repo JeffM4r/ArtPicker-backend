@@ -2,6 +2,9 @@ import authRepository from "../repositories/authRepository.js"
 import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+import { UserIdJWT } from "../config/types.js"
+
+
 
 export async function postUserinDb(body: any) {
   const passwordEncrypted: string = bcrypt.hashSync(body.password, 10)
@@ -62,7 +65,7 @@ export async function checkUserinDb(body: any) {
     },
     process.env.JWT_ACCESS_TOKEN_SECRET,
     {
-      expiresIn: "15m",
+      expiresIn: "10m",
     }
   )
 
@@ -72,7 +75,7 @@ export async function checkUserinDb(body: any) {
     },
     process.env.JWT_REFRESH_TOKEN_SECRET,
     {
-      expiresIn: "60d",
+      expiresIn: "365d",
     }
   )
 
@@ -87,4 +90,30 @@ export async function checkUserinDb(body: any) {
   await authRepository.insertSession(checkUserEmail.id, refreshToken)
 
   return {refreshToken, accessToken}
+}
+
+export async function generateAccessToken(token) {
+  
+  const sessionFound = await authRepository.findSessionbyToken(token)
+  if (!sessionFound) {
+    throw {
+      name: "failedToFindSession",
+      message: "session not found",
+    };
+  }
+
+  const user = await jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET) as UserIdJWT
+  const { userId } = user
+
+  const accessToken = await jwt.sign(
+    {
+      userId: userId
+    },
+    process.env.JWT_ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "10m",
+    }
+  )
+
+  return accessToken
 }

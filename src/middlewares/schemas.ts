@@ -1,5 +1,4 @@
 import joi from "joi";
-import fs from 'fs';
 import { fileCheck } from "./fileValidation.js";
 
 const signupSchema = joi.object({

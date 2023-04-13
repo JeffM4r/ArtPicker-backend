@@ -1,6 +1,8 @@
-import { postUserinDb,checkUserinDb } from "../services/authServices.js"
+import { postUserinDb,checkUserinDb,generateAccessToken } from "../services/authServices.js"
+import { Request, Response } from "express"
 
-export async function createUser(req, res) {
+
+export async function createUser(req: Request, res: Response) {
   const body = res.locals.user
   
   try {
@@ -21,7 +23,7 @@ export async function createUser(req, res) {
   }
 }
 
-export async function createSession(req, res) {
+export async function createSession(req: Request, res: Response) {
   const body = res.locals.user
   
   try {
@@ -36,4 +38,24 @@ export async function createSession(req, res) {
     }
     return res.sendStatus(500)
   }
+}
+
+export async function checkToken(req: Request, res: Response) {
+  const {authorization} = req.headers
+ 
+  if(!authorization.includes("Bearer ")){
+    return res.sendStatus(401);
+  }
+
+  const refresToken = authorization?.replace("Bearer ", "");
+
+  try {
+		const newToken = await generateAccessToken(refresToken);
+		
+		return res.status(201).send(newToken);
+
+	} catch (error) {
+
+		return res.sendStatus(401);
+	}
 }
