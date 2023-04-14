@@ -1,3 +1,4 @@
+import { Request, Response, NextFunction } from "express";
 import joi from "joi";
 import { fileCheck } from "./fileValidation.js";
 
@@ -13,7 +14,13 @@ const signinSchema = joi.object({
 	password: joi.string().required(),
 });
 
-export function signupMiddleware(req, res, next) {
+const postSchema = joi.object({
+	title: joi.string().required(),
+	subtitle: joi.string().required(),
+	image:joi.string().required()
+});
+
+export function signupMiddleware(req: Request, res: Response, next: NextFunction) {
 	const user = req.body;
 	const userValidation = signupSchema.validate(user,{ abortEarly: false });
 	const errorMessages = [];
@@ -34,7 +41,7 @@ export function signupMiddleware(req, res, next) {
 	next();
 }
 
-export function signinMiddleware(req, res, next) {
+export function signinMiddleware(req: Request, res: Response, next: NextFunction) {
 	const user = req.body;
 	const userValidation = signinSchema.validate(user,{ abortEarly: false });
 	const errorMessages = [];
@@ -46,6 +53,27 @@ export function signinMiddleware(req, res, next) {
 	}
 
 	res.locals.user = req.body;
+
+	next();
+}
+
+export function postMiddleware(req: Request, res: Response, next: NextFunction) {
+	const post = req.body;
+	const postValidation = postSchema.validate(post,{ abortEarly: false });
+	const errorMessages = [];
+
+	if (postValidation.error) {
+		postValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		res.status(422).send(errorMessages);
+		return;
+	}
+
+	if(fileCheck(post.image) === false){
+		res.status(422).send("invalid file");
+		return;
+	}
+
+	res.locals.body = req.body;
 
 	next();
 }

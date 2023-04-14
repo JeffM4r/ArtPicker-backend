@@ -42,7 +42,6 @@ export async function postUserinDb(body: any) {
 
 export async function checkUserinDb(body: any) {
   const email: string = body.email
-  const password: string = body.password
 
   const checkUserEmail = await authRepository.findUserByEmail(email)
   if (!checkUserEmail) {
@@ -52,12 +51,14 @@ export async function checkUserinDb(body: any) {
     };
   }
 
-  if (!bcrypt.compareSync(password, checkUserEmail.password)) {
+  if (!bcrypt.compareSync(body.password, checkUserEmail.password)) {
     throw {
       name: "failedToSignIn",
       message: "wrong password",
     };
   }
+
+  delete body.password;
 
   const accessToken = await jwt.sign(
     {
@@ -92,7 +93,7 @@ export async function checkUserinDb(body: any) {
   return {refreshToken, accessToken}
 }
 
-export async function generateAccessToken(token) {
+export async function generateAccessToken(token: string): Promise<string> {
   
   const sessionFound = await authRepository.findSessionbyToken(token)
   if (!sessionFound) {

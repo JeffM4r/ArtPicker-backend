@@ -7,6 +7,7 @@ export async function createUser(req: Request, res: Response) {
   
   try {
     const insertedUser = await postUserinDb(body)
+    delete insertedUser.id
   
     return res.status(201).send(insertedUser)
 
@@ -43,7 +44,7 @@ export async function createSession(req: Request, res: Response) {
 export async function checkToken(req: Request, res: Response) {
   const {authorization} = req.headers
  
-  if(!authorization.includes("Bearer ")){
+  if(!authorization?.includes("Bearer ")){
     return res.sendStatus(401);
   }
 
