@@ -20,6 +20,10 @@ const postSchema = joi.object({
 	image:joi.string().required()
 });
 
+const commentSchema = joi.object({
+	comment: joi.string().required(),
+});
+
 export function signupMiddleware(req: Request, res: Response, next: NextFunction) {
 	const user = req.body;
 	const userValidation = signupSchema.validate(user,{ abortEarly: false });
@@ -53,6 +57,22 @@ export function signinMiddleware(req: Request, res: Response, next: NextFunction
 	}
 
 	res.locals.user = req.body;
+
+	next();
+}
+
+export function commentMiddleware(req: Request, res: Response, next: NextFunction) {
+	const comment = req.body;
+	const commentValidation = commentSchema.validate(comment,{ abortEarly: false });
+	const errorMessages = [];
+
+	if (commentValidation.error) {
+		commentValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		res.status(422).send(errorMessages);
+		return;
+	}
+
+	res.locals.body = req.body;
 
 	next();
 }
