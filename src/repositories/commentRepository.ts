@@ -1,6 +1,7 @@
 import { prisma } from "../config/database.js";
+import { comments } from "@prisma/client";
 
-async function getPostCommentsByPostId(postId: number) {
+async function getPostCommentsByPostId(postId: number): Promise<comments[]> {
   return prisma.comments.findMany({
     where: {
       imageId: postId
@@ -8,12 +9,12 @@ async function getPostCommentsByPostId(postId: number) {
   });
 }
 
-async function insertCommentByPostId(postId: number, userId: number, comment: string) {
+async function insertCommentByPostId(postId: number, userId: number, comment: string): Promise<comments> {
   return prisma.comments.create({
-    data:{
-      imageId:postId,
-      userId:userId,
-      text:comment
+    data: {
+      imageId: postId,
+      userId: userId,
+      text: comment
     }
   });
 }

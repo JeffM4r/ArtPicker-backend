@@ -1,6 +1,7 @@
 import { prisma } from "../config/database.js";
+import { images, users, profilePictures } from "@prisma/client";
 
-async function findUserById(userId: number) {
+async function findUserById(userId: number): Promise<users> {
   return prisma.users.findUnique({
     where: {
       id: userId
@@ -8,11 +9,11 @@ async function findUserById(userId: number) {
   });
 }
 
-async function getPosts() {
+async function getPosts(): Promise<images[]> {
   return prisma.images.findMany();
 }
 
-async function getPost(postId: number) {
+async function getPost(postId: number): Promise<images & { users: users & { profilePictures: profilePictures[]; }; }> {
   return prisma.images.findUnique({
     where: {
       id: postId
@@ -20,14 +21,14 @@ async function getPost(postId: number) {
     include: {
       users: {
         include: {
-          profilePictures:true,
+          profilePictures: true,
         }
       },
     },
   });
 }
 
-async function insertPost(body, userId: number, picLink: string, picSerial: string) {
+async function insertPost(body, userId: number, picLink: string, picSerial: string): Promise<images> {
   return prisma.images.create({
     data: {
       userId: userId,

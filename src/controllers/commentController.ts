@@ -3,40 +3,47 @@ import { getComments, insertComment } from "../services/commentService.js"
 import { comments } from "@prisma/client"
 
 
-export async function createComment(req: Request, res: Response) {
-  const userId = res.locals.user
-  const comment = res.locals.body.comment
-  const postId = req.params.postId
+export async function createComment(req: Request, res: Response): Promise<void> {
+  const userId: string = res.locals.user;
+  const comment: string = res.locals.body.comment;
+  const postId: string = req.params.postId;
 
   try {
-    const insertedComment:comments = await insertComment(Number(userId), Number(postId), comment)
+    const insertedComment: comments = await insertComment(Number(userId), Number(postId), comment);
 
-    return res.status(201).send(insertedComment)
+    res.status(201).send(insertedComment);
+    return;
 
   } catch (error) {
 
     if (error.name === "postNotFound") {
-      return res.sendStatus(404);
-    }
+      res.sendStatus(404);
+      return;
 
-    return res.sendStatus(500)
+    };
+
+    res.sendStatus(500);
+    return;
   }
 }
 
-export async function getCommentsByPostId(req: Request, res: Response) {
-  const postId = req.params.postId
+export async function getCommentsByPostId(req: Request, res: Response): Promise<void> {
+  const postId: string = req.params.postId;
 
   try {
-    const comments:comments[] = await getComments(Number(postId))
+    const comments: comments[] = await getComments(Number(postId));
 
-    return res.status(200).send(comments)
+    res.status(200).send(comments);
+    return;
 
   } catch (error) {
 
     if (error.name === "postNotFound") {
-      return res.sendStatus(404);
-    }
+      res.sendStatus(404);
+      return;
+    };
 
-    return res.sendStatus(500)
+    res.sendStatus(500);
+    return;
   }
 }

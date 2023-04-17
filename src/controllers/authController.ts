@@ -1,62 +1,73 @@
-import { postUserinDb,checkUserinDb,generateAccessToken } from "../services/authServices.js"
+import { postUserinDb, checkUserinDb, generateAccessToken } from "../services/authServices.js"
 import { Request, Response } from "express"
+import { SignupBody, SigninBody } from "src/config/types.js";
 
 
-export async function createUser(req: Request, res: Response) {
-  const body = res.locals.user
-  
+export async function createUser(req: Request, res: Response): Promise<void> {
+  const body: SignupBody = res.locals.user;
+
   try {
-    const insertedUser = await postUserinDb(body)
-    delete insertedUser.id
-  
-    return res.status(201).send(insertedUser)
+    const insertedUser = await postUserinDb(body);
+    delete insertedUser.id;
+
+    res.status(201).send(insertedUser);
+    return;
 
   } catch (error) {
 
     if (error.name === "userNameAlreadyinUse") {
-      return res.sendStatus(409);
-    }
+      res.sendStatus(409);
+      return;
+    };
     if (error.name === "userEmailAlreadyinUse") {
-      return res.sendStatus(409);
-    }
+      res.sendStatus(409);
+      return;
+    };
 
-    return res.sendStatus(500)
+    res.sendStatus(500)
+    return;
   }
 }
 
-export async function createSession(req: Request, res: Response) {
-  const body = res.locals.user
-  
+export async function createSession(req: Request, res: Response): Promise<void> {
+  const body: SigninBody = res.locals.user;
+
   try {
-    const token = await checkUserinDb(body)
-  
-    return res.status(201).send(token)
+    const token = await checkUserinDb(body);
+
+    res.status(201).send(token);
+    return;
 
   } catch (error) {
 
     if (error.name === "failedToSignIn") {
-      return res.sendStatus(401);
-    }
-    return res.sendStatus(500)
+      res.sendStatus(401);
+      return;
+    };
+    res.sendStatus(500);
+    return;
   }
 }
 
-export async function checkToken(req: Request, res: Response) {
-  const {authorization} = req.headers
- 
-  if(!authorization?.includes("Bearer ")){
-    return res.sendStatus(401);
-  }
+export async function checkToken(req: Request, res: Response): Promise<void> {
+  const authorization:string = req.headers.authorization;
+
+  if (!authorization?.includes("Bearer ")) {
+    res.sendStatus(401);
+    return;
+  };
 
   const refresToken = authorization?.replace("Bearer ", "");
 
   try {
-		const newToken = await generateAccessToken(refresToken);
-		
-		return res.status(201).send(newToken);
+    const newToken = await generateAccessToken(refresToken);
 
-	} catch (error) {
+    res.status(201).send(newToken);
+    return;
 
-		return res.sendStatus(401);
-	}
+  } catch (error) {
+
+    res.sendStatus(401);
+    return;
+  }
 }

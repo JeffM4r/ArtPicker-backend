@@ -1,41 +1,42 @@
 import { Request, Response, NextFunction } from "express";
 import joi from "joi";
 import { fileCheck } from "./fileValidation.js";
+import { SigninBody, SignupBody, PostBody, CommentBody } from "src/config/types.js";
 
-const signupSchema = joi.object({
+const signupSchema: joi.ObjectSchema<SignupBody> = joi.object({
 	userName: joi.string().required(),
 	email: joi.string().email().required(),
 	password: joi.string().required(),
-	image:joi.string().required()
+	image: joi.string().required()
 });
 
-const signinSchema = joi.object({
+const signinSchema: joi.ObjectSchema<SigninBody> = joi.object({
 	email: joi.string().email().required(),
 	password: joi.string().required(),
 });
 
-const postSchema = joi.object({
+const postSchema: joi.ObjectSchema<PostBody> = joi.object({
 	title: joi.string().required(),
 	subtitle: joi.string().required(),
-	image:joi.string().required()
+	image: joi.string().required()
 });
 
-const commentSchema = joi.object({
+const commentSchema: joi.ObjectSchema<CommentBody> = joi.object({
 	comment: joi.string().required(),
 });
 
-export function signupMiddleware(req: Request, res: Response, next: NextFunction) {
-	const user = req.body;
-	const userValidation = signupSchema.validate(user,{ abortEarly: false });
-	const errorMessages = [];
+export function signupMiddleware(req: Request, res: Response, next: NextFunction): void {
+	const user: SignupBody = req.body;
+	const userValidation: joi.ValidationResult<SignupBody> = signupSchema.validate(user, { abortEarly: false });
+	const errorMessages: Array<string> = [];
 
 	if (userValidation.error) {
-		userValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		userValidation.error.details.map((error) => { errorMessages.push(error.message.replace('\"', "").replace('\"', "")) })
 		res.status(422).send(errorMessages);
 		return;
 	}
 
-	if(fileCheck(user.image) === false){
+	if (fileCheck(user.image) === false) {
 		res.status(422).send("invalid file");
 		return;
 	}
@@ -45,13 +46,13 @@ export function signupMiddleware(req: Request, res: Response, next: NextFunction
 	next();
 }
 
-export function signinMiddleware(req: Request, res: Response, next: NextFunction) {
-	const user = req.body;
-	const userValidation = signinSchema.validate(user,{ abortEarly: false });
-	const errorMessages = [];
+export function signinMiddleware(req: Request, res: Response, next: NextFunction): void {
+	const user: SigninBody = req.body;
+	const userValidation: joi.ValidationResult<SigninBody> = signinSchema.validate(user, { abortEarly: false });
+	const errorMessages: Array<string> = [];
 
 	if (userValidation.error) {
-		userValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		userValidation.error.details.map((error) => { errorMessages.push(error.message.replace('\"', "").replace('\"', "")) })
 		res.status(422).send(errorMessages);
 		return;
 	}
@@ -61,13 +62,13 @@ export function signinMiddleware(req: Request, res: Response, next: NextFunction
 	next();
 }
 
-export function commentMiddleware(req: Request, res: Response, next: NextFunction) {
-	const comment = req.body;
-	const commentValidation = commentSchema.validate(comment,{ abortEarly: false });
-	const errorMessages = [];
+export function commentMiddleware(req: Request, res: Response, next: NextFunction): void {
+	const comment: CommentBody = req.body;
+	const commentValidation: joi.ValidationResult<CommentBody> = commentSchema.validate(comment, { abortEarly: false });
+	const errorMessages: Array<string> = [];
 
 	if (commentValidation.error) {
-		commentValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		commentValidation.error.details.map((error) => { errorMessages.push(error.message.replace('\"', "").replace('\"', "")) })
 		res.status(422).send(errorMessages);
 		return;
 	}
@@ -77,18 +78,18 @@ export function commentMiddleware(req: Request, res: Response, next: NextFunctio
 	next();
 }
 
-export function postMiddleware(req: Request, res: Response, next: NextFunction) {
-	const post = req.body;
-	const postValidation = postSchema.validate(post,{ abortEarly: false });
-	const errorMessages = [];
+export function postMiddleware(req: Request, res: Response, next: NextFunction): void {
+	const post: PostBody = req.body;
+	const postValidation: joi.ValidationResult<PostBody> = postSchema.validate(post, { abortEarly: false });
+	const errorMessages: Array<string> = [];
 
 	if (postValidation.error) {
-		postValidation.error.details.map((error)=>{errorMessages.push(error.message.replace('\"', "").replace('\"', ""))})
+		postValidation.error.details.map((error) => { errorMessages.push(error.message.replace('\"', "").replace('\"', "")) })
 		res.status(422).send(errorMessages);
 		return;
 	}
 
-	if(fileCheck(post.image) === false){
+	if (fileCheck(post.image) === false) {
 		res.status(422).send("invalid file");
 		return;
 	}

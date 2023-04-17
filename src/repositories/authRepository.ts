@@ -1,6 +1,7 @@
 import { prisma } from "../config/database.js";
+import { sessions, users, profilePictures } from "@prisma/client";
 
-async function findUserByName(userName: string) {
+async function findUserByName(userName: string): Promise<users> {
   return prisma.users.findFirst({
     where: {
       userName: userName
@@ -8,7 +9,7 @@ async function findUserByName(userName: string) {
   });
 }
 
-async function findUserByEmail(email: string) {
+async function findUserByEmail(email: string): Promise<users> {
   return prisma.users.findFirst({
     where: {
       email: email
@@ -16,7 +17,7 @@ async function findUserByEmail(email: string) {
   });
 }
 
-async function insertUser(userName: string, email: string, password: string) {
+async function insertUser(userName: string, email: string, password: string): Promise<users> {
   return prisma.users.create({
     data: {
       userName: userName,
@@ -26,7 +27,7 @@ async function insertUser(userName: string, email: string, password: string) {
   })
 }
 
-async function insertProfilePicture(userId: number, pictureLink: string, pictureSerial: string) {
+async function insertProfilePicture(userId: number, pictureLink: string, pictureSerial: string): Promise<profilePictures> {
   return prisma.profilePictures.create({
     data: {
       userId: userId,
@@ -36,32 +37,32 @@ async function insertProfilePicture(userId: number, pictureLink: string, picture
   })
 }
 
-async function insertSession(userId: number, refreshToken: string){
+async function insertSession(userId: number, refreshToken: string): Promise<sessions> {
   return prisma.sessions.create({
-    data:{
+    data: {
       userId: userId,
       token: refreshToken
     }
   })
 }
 
-async function findSession(userId: number){
+async function findSession(userId: number): Promise<sessions> {
   return prisma.sessions.findFirst({
-    where:{
+    where: {
       userId: userId
     }
   })
 }
 
-async function findSessionbyToken(token: string){
+async function findSessionbyToken(token: string): Promise<sessions> {
   return prisma.sessions.findFirst({
-    where:{
+    where: {
       token: token
     }
   })
 }
 
-async function deleteSession(id: number){
+async function deleteSession(id: number): Promise<sessions> {
   return prisma.sessions.delete({
     where: {
       id: id

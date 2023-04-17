@@ -1,10 +1,12 @@
 import cloudinary from "../config/cloudinary.js"
 import postRepository from "../repositories/postRepository.js";
+import { images, users, profilePictures } from "@prisma/client";
+import { PostBody } from "src/config/types.js";
 
-export async function postImageinDb(body, userId) {
+export async function postImageinDb(body:PostBody, userId: number): Promise<images> {
 
   const checkUser = await postRepository.findUserById(userId)
-  if(!checkUser){
+  if (!checkUser) {
     throw {
       name: "UserIdInvalid",
       message: "user not found",
@@ -20,10 +22,10 @@ export async function postImageinDb(body, userId) {
   return insertPost
 }
 
-export async function getAllPosts() {
+export async function getAllPosts(): Promise<images[]> {
 
   const posts = await postRepository.getPosts()
-  if(!posts){
+  if (!posts) {
     throw {
       name: "PostsNotFound",
       message: "there is no posts",
@@ -33,10 +35,10 @@ export async function getAllPosts() {
   return posts
 }
 
-export async function getPostbyId(postId:number) {
+export async function getPostbyId(postId: number): Promise<images & { users: users & { profilePictures: profilePictures[]; }; }> {
 
   const post = await postRepository.getPost(postId)
-  if(!post){
+  if (!post) {
     throw {
       name: "PostNotFound",
       message: "could not find this post",

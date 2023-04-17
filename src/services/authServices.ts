@@ -3,10 +3,12 @@ import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { UserIdJWT } from "../config/types.js"
+import { users } from "@prisma/client"
+import { SignupBody, SigninBody } from "../config/types.js"
 
 
 
-export async function postUserinDb(body: any) {
+export async function postUserinDb(body: SignupBody): Promise<users> {
   const passwordEncrypted: string = bcrypt.hashSync(body.password, 10)
   const name: string = body.userName
   const email: string = body.email
@@ -40,7 +42,7 @@ export async function postUserinDb(body: any) {
   return insertedUser
 }
 
-export async function checkUserinDb(body: any) {
+export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: string; accessToken: string; }> {
   const email: string = body.email
 
   const checkUserEmail = await authRepository.findUserByEmail(email)
@@ -62,7 +64,7 @@ export async function checkUserinDb(body: any) {
 
   const accessToken = await jwt.sign(
     {
-      userId:checkUserEmail.id
+      userId: checkUserEmail.id
     },
     process.env.JWT_ACCESS_TOKEN_SECRET,
     {
@@ -72,7 +74,7 @@ export async function checkUserinDb(body: any) {
 
   const refreshToken = await jwt.sign(
     {
-      userId:checkUserEmail.id
+      userId: checkUserEmail.id
     },
     process.env.JWT_REFRESH_TOKEN_SECRET,
     {
@@ -82,7 +84,7 @@ export async function checkUserinDb(body: any) {
 
   const oldSession = await authRepository.findSession(checkUserEmail.id)
 
-  if(oldSession){
+  if (oldSession) {
 
     await authRepository.deleteSession(oldSession.id)
 
@@ -90,11 +92,11 @@ export async function checkUserinDb(body: any) {
 
   await authRepository.insertSession(checkUserEmail.id, refreshToken)
 
-  return {refreshToken, accessToken}
+  return { refreshToken, accessToken }
 }
 
 export async function generateAccessToken(token: string): Promise<string> {
-  
+
   const sessionFound = await authRepository.findSessionbyToken(token)
   if (!sessionFound) {
     throw {

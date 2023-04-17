@@ -1,60 +1,70 @@
 import { Request, Response } from "express"
 import { postImageinDb, getAllPosts, getPostbyId } from "../services/postServices.js"
+import { PostBody } from "src/config/types.js";
+import { images, users, profilePictures } from "@prisma/client";
 
-export async function sendPost(req: Request, res: Response) {
-  const userId = res.locals.user
-  const body = res.locals.body
+export async function sendPost(req: Request, res: Response): Promise<void> {
+  const userId: number = res.locals.user;
+  const body: PostBody = res.locals.body;
 
   try {
 
-    const post = await postImageinDb(body, userId)
-    delete post.userId
+    const post = await postImageinDb(body, userId);
+    delete post.userId;
 
-    return res.status(201).send(post)
+    res.status(201).send(post);
+    return;
 
   } catch (error) {
 
-    return res.sendStatus(500)
+    res.sendStatus(500);
+    return;
   }
 }
 
-export async function viewPosts(req: Request, res: Response) {
+export async function viewPosts(req: Request, res: Response): Promise<void> {
 
   try {
 
-    const posts = await getAllPosts()
+    const posts: images[] = await getAllPosts();
 
-    return res.status(200).send(posts)
+    res.status(200).send(posts);
+    return;
 
   } catch (error) {
 
     if (error.name === "PostsNotFound") {
-      return res.sendStatus(404);
-    }
+      res.sendStatus(404);
+      return;
+    };
 
-    return res.sendStatus(500)
+    res.sendStatus(500);
+    return;
   }
 }
 
-export async function getSpecificPost(req: Request, res: Response) {
-  const postId = req.params.id
+export async function getSpecificPost(req: Request, res: Response): Promise<void> {
+  const postId: string = req.params.id;
 
   try {
 
-    const post = await getPostbyId(Number(postId))
-    delete post.userId
-    delete post.users.profilePictures[0].id
-    delete post.users.profilePictures[0].userId
-    delete post.users.profilePictures[0].pictureSerial
+    const post: images & { users: users & { profilePictures: profilePictures[]; }; } = await getPostbyId(Number(postId));
+    delete post.userId;
+    delete post.users.profilePictures[0].id;
+    delete post.users.profilePictures[0].userId;
+    delete post.users.profilePictures[0].pictureSerial;
 
-    return res.status(200).send(post)
+    res.status(200).send(post);
+    return;
 
   } catch (error) {
-    
-    if (error.name === "PostNotFound") {
-      return res.sendStatus(404);
-    }
 
-    return res.sendStatus(500)
+    if (error.name === "PostNotFound") {
+      res.sendStatus(404);
+      return;
+    };
+
+    res.sendStatus(500);
+    return;
   }
 }
