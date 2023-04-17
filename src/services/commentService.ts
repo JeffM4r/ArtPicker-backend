@@ -1,5 +1,5 @@
-import commentRepository from "src/repositories/commentRepository";
-import postRepository from "src/repositories/postRepository";
+import commentRepository from "../repositories/commentRepository.js";
+import postRepository from "../repositories/postRepository.js";
 
 export async function getComments(postId: number) {
 
