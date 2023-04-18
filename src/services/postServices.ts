@@ -1,11 +1,12 @@
+import { UploadApiResponse } from "cloudinary";
 import cloudinary from "../config/cloudinary.js"
 import postRepository from "../repositories/postRepository.js";
 import { images, users, profilePictures } from "@prisma/client";
 import { PostBody } from "src/config/types.js";
 
-export async function postImageinDb(body:PostBody, userId: number): Promise<images> {
+export async function postImageinDb(body: PostBody, userId: number): Promise<images> {
 
-  const checkUser = await postRepository.findUserById(userId)
+  const checkUser: users = await postRepository.findUserById(userId)
   if (!checkUser) {
     throw {
       name: "UserIdInvalid",
@@ -13,18 +14,18 @@ export async function postImageinDb(body:PostBody, userId: number): Promise<imag
     };
   }
 
-  const uploadedImage = await cloudinary.uploader.upload(body.image, {
+  const uploadedImage: UploadApiResponse = await cloudinary.uploader.upload(body.image, {
     upload_preset: "artPicker"
   });
 
-  const insertPost = await postRepository.insertPost(body, userId, uploadedImage.url, uploadedImage.public_id)
+  const insertPost: images = await postRepository.insertPost(body, userId, uploadedImage.url, uploadedImage.public_id)
 
   return insertPost
 }
 
 export async function getAllPosts(): Promise<images[]> {
 
-  const posts = await postRepository.getPosts()
+  const posts: images[] = await postRepository.getPosts()
   if (!posts) {
     throw {
       name: "PostsNotFound",
@@ -37,7 +38,7 @@ export async function getAllPosts(): Promise<images[]> {
 
 export async function getPostbyId(postId: number): Promise<images & { users: users & { profilePictures: profilePictures[]; }; }> {
 
-  const post = await postRepository.getPost(postId)
+  const post: images & { users: users & { profilePictures: profilePictures[]; }; } = await postRepository.getPost(postId)
   if (!post) {
     throw {
       name: "PostNotFound",

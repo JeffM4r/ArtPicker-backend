@@ -3,8 +3,9 @@ import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { UserIdJWT } from "../config/types.js"
-import { users } from "@prisma/client"
+import { sessions, users } from "@prisma/client"
 import { SignupBody, SigninBody } from "../config/types.js"
+import { UploadApiResponse } from "cloudinary"
 
 
 
@@ -16,7 +17,7 @@ export async function postUserinDb(body: SignupBody): Promise<users> {
 
   delete body.password
 
-  const checkUserName = await authRepository.findUserByName(body.userName)
+  const checkUserName: users = await authRepository.findUserByName(body.userName)
   if (checkUserName) {
     throw {
       name: "userNameAlreadyinUse",
@@ -24,7 +25,7 @@ export async function postUserinDb(body: SignupBody): Promise<users> {
     };
   }
 
-  const checkUserEmail = await authRepository.findUserByEmail(body.email)
+  const checkUserEmail: users = await authRepository.findUserByEmail(body.email)
   if (checkUserEmail) {
     throw {
       name: "userEmailAlreadyinUse",
@@ -32,11 +33,11 @@ export async function postUserinDb(body: SignupBody): Promise<users> {
     };
   }
 
-  const uploadedImage = await cloudinary.uploader.upload(image, {
+  const uploadedImage: UploadApiResponse = await cloudinary.uploader.upload(image, {
     upload_preset: "artPicker"
   });
 
-  const insertedUser = await authRepository.insertUser(name, email, passwordEncrypted)
+  const insertedUser: users = await authRepository.insertUser(name, email, passwordEncrypted)
   await authRepository.insertProfilePicture(insertedUser.id, uploadedImage.url, uploadedImage.public_id)
 
   return insertedUser
@@ -45,7 +46,7 @@ export async function postUserinDb(body: SignupBody): Promise<users> {
 export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: string; accessToken: string; }> {
   const email: string = body.email
 
-  const checkUserEmail = await authRepository.findUserByEmail(email)
+  const checkUserEmail: users = await authRepository.findUserByEmail(email)
   if (!checkUserEmail) {
     throw {
       name: "failedToSignIn",
@@ -62,7 +63,7 @@ export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: s
 
   delete body.password;
 
-  const accessToken = await jwt.sign(
+  const accessToken: string = await jwt.sign(
     {
       userId: checkUserEmail.id
     },
@@ -72,7 +73,7 @@ export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: s
     }
   )
 
-  const refreshToken = await jwt.sign(
+  const refreshToken: string = await jwt.sign(
     {
       userId: checkUserEmail.id
     },
@@ -82,7 +83,7 @@ export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: s
     }
   )
 
-  const oldSession = await authRepository.findSession(checkUserEmail.id)
+  const oldSession: sessions = await authRepository.findSession(checkUserEmail.id)
 
   if (oldSession) {
 
@@ -97,7 +98,7 @@ export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: s
 
 export async function generateAccessToken(token: string): Promise<string> {
 
-  const sessionFound = await authRepository.findSessionbyToken(token)
+  const sessionFound: sessions = await authRepository.findSessionbyToken(token)
   if (!sessionFound) {
     throw {
       name: "failedToFindSession",
@@ -105,10 +106,10 @@ export async function generateAccessToken(token: string): Promise<string> {
     };
   }
 
-  const user = await jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET) as UserIdJWT
-  const { userId } = user
+  const user: UserIdJWT = await jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET) as UserIdJWT
+  const userId: number = user.userId
 
-  const accessToken = await jwt.sign(
+  const accessToken: string = await jwt.sign(
     {
       userId: userId
     },
