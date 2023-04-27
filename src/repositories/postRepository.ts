@@ -1,10 +1,13 @@
 import { prisma } from "../config/database.js";
 import { images, users, profilePictures } from "@prisma/client";
 
-async function findUserById(userId: number): Promise<users> {
+async function findUserById(userId: number): Promise<users & { profilePictures: profilePictures[]; }> {
   return prisma.users.findUnique({
     where: {
       id: userId
+    },
+    include: {
+      profilePictures: true
     }
   });
 }

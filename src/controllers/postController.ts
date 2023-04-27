@@ -9,7 +9,7 @@ export async function sendPost(req: Request, res: Response): Promise<void> {
 
   try {
 
-    const post = await postImageinDb(body, userId);
+    const post: images = await postImageinDb(body, userId);
     delete post.userId;
 
     res.status(201).send(post);
@@ -28,7 +28,7 @@ export async function viewPosts(req: Request, res: Response): Promise<void> {
 
     const posts: images[] = await getAllPosts();
 
-    res.status(200).send(posts);
+    res.status(200).send(posts.reverse());
     return;
 
   } catch (error) {

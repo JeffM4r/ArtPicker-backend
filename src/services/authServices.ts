@@ -1,9 +1,10 @@
 import authRepository from "../repositories/authRepository.js"
+import postRepository from "../repositories/postRepository.js"
 import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { UserIdJWT } from "../config/types.js"
-import { sessions, users } from "@prisma/client"
+import { sessions, users, profilePictures } from "@prisma/client"
 import { SignupBody, SigninBody } from "../config/types.js"
 import { UploadApiResponse } from "cloudinary"
 
@@ -94,6 +95,19 @@ export async function checkUserinDb(body: SigninBody): Promise<{ refreshToken: s
   await authRepository.insertSession(checkUserEmail.id, refreshToken)
 
   return { refreshToken, accessToken }
+}
+
+export async function getUser(userId: number): Promise<users & { profilePictures: profilePictures[]; }> {
+
+  const userFound: users & { profilePictures: profilePictures[]; } = await postRepository.findUserById(userId)
+  if (!userFound) {
+    throw {
+      name: "failedToFindUser",
+      message: "user not found",
+    };
+  }
+
+  return userFound
 }
 
 export async function generateAccessToken(token: string): Promise<string> {
