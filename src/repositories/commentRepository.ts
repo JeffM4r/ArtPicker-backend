@@ -1,10 +1,17 @@
 import { prisma } from "../config/database.js";
-import { comments } from "@prisma/client";
+import { comments, users, profilePictures } from "@prisma/client";
 
-async function getPostCommentsByPostId(postId: number): Promise<comments[]> {
+async function getPostCommentsByPostId(postId: number): Promise<(comments & { users: users & { profilePictures: profilePictures[]; }; })[]> {
   return prisma.comments.findMany({
     where: {
       imageId: postId
+    },
+    include: {
+      users: {
+        include: {
+          profilePictures: true
+        }
+      }
     }
   });
 }

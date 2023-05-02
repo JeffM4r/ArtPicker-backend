@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { getComments, insertComment } from "../services/commentService.js"
-import { comments } from "@prisma/client"
+import { comments, users, profilePictures } from "@prisma/client"
 
 
 export async function createComment(req: Request, res: Response): Promise<void> {
@@ -31,7 +31,14 @@ export async function getCommentsByPostId(req: Request, res: Response): Promise<
   const postId: string = req.params.postId;
 
   try {
-    const comments: comments[] = await getComments(Number(postId));
+    const comments: (comments & { users: users & { profilePictures: profilePictures[]; }; })[] = await getComments(Number(postId));
+    comments.forEach((data)=>{
+      delete data.userId
+      delete data.imageId
+      delete data.users.password
+      delete data.users.email
+      delete data.users.profilePictures[0].pictureSerial
+    })
 
     res.status(200).send(comments);
     return;

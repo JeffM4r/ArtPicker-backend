@@ -50,6 +50,7 @@ export async function getSpecificPost(req: Request, res: Response): Promise<void
 
     const post: images & { users: users & { profilePictures: profilePictures[]; }; } = await getPostbyId(Number(postId));
     delete post.userId;
+    delete post.users.password;
     delete post.users.profilePictures[0].id;
     delete post.users.profilePictures[0].userId;
     delete post.users.profilePictures[0].pictureSerial;

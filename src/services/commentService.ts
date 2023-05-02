@@ -2,7 +2,7 @@ import commentRepository from "../repositories/commentRepository.js";
 import postRepository from "../repositories/postRepository.js";
 import { comments, images, users, profilePictures } from "@prisma/client";
 
-export async function getComments(postId: number): Promise<comments[]> {
+export async function getComments(postId: number): Promise<(comments & { users: users & { profilePictures: profilePictures[]; }; })[]> {
 
   const post: images & { users: users & { profilePictures: profilePictures[]; }; } = await postRepository.getPost(postId)
   if (!post) {
@@ -12,7 +12,7 @@ export async function getComments(postId: number): Promise<comments[]> {
     };
   }
 
-  const comments: comments[] = await commentRepository.getPostCommentsByPostId(postId)
+  const comments: (comments & { users: users & { profilePictures: profilePictures[]; }; })[] = await commentRepository.getPostCommentsByPostId(postId)
 
   return comments;
 }
