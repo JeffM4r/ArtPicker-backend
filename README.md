@@ -11,7 +11,7 @@
  
  ```
 # Clone this repository
-$ git clone https://github.com/JeffM4r/ArtPicker-frontend.git
+$ git clone https://github.com/JeffM4r/ArtPicker-backend.git
 
 # Go into the repository
 $ cd ArtPicker-backend/
