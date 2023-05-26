@@ -106,7 +106,7 @@ $ npx prisma migrate dev
  
  Will receive an array of objects(comments)<br>
   
- POST ```comments/:postId````<br>
+ POST ```comments/:postId```<br>
  
  Need to receive through the headers a parameter ```Authorization```<br>
  and a body with ```comment```
